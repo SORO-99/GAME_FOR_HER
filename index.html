@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Catch the Love 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, #ffdde1, #ee9ca7);
+    font-family: 'Segoe UI', sans-serif;
+    overflow: hidden;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 20px;
+    color: #b30059;
+}
+
+#score, #timer {
+    font-size: 20px;
+    color: #800040;
+}
+
+.heart {
+    position: absolute;
+    font-size: 34px;
+    cursor: pointer;
+    animation: fall 4s linear forwards;
+}
+
+@keyframes fall {
+    from { top: -40px; opacity: 1; }
+    to { top: 100vh; opacity: 0; }
+}
+
+.message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 12px 22px;
+    border-radius: 20px;
+    color: #cc0066;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+#startScreen, #endScreen {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.97);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+#endScreen { display: none; }
+
+button {
+    margin-top: 20px;
+    padding: 14px 30px;
+    border: none;
+    background: #ff4d88;
+    color: white;
+    font-size: 18px;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+/* 🌸 Pause Moment */
+#pauseMoment {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,255,255,0.96);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 2000;
+    padding: 20px;
+}
+
+#pauseMoment p {
+    color: #b30059;
+    font-size: 20px;
+    line-height: 1.7;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🎧 MUSIC -->
+<audio id="bgMusic" loop>
+    <source src="Saiyara(a) (2).mp3" type="audio/mpeg">
+</audio>
+
+<!-- START -->
+<div id="startScreen">
+    <h1>💖 Catch the Love 💖</h1>
+    <p>Only for you, Madamji 🌸</p>
+    <button id="startBtn">Start 🎶</button>
+</div>
+
+<h1>Catch the Love 💖</h1>
+<div id="score">Love Collected: 0</div>
+<div id="timer">Time Left: 60s</div>
+
+<!-- 🌸 PAUSE -->
+<div id="pauseMoment">
+    <div>
+        <p>Hey Madamji 🤍</p>
+        <p>Pause for 10 seconds…<br>just breathe 🌸</p>
+        <p>You are enough.<br>You are safe.<br>Today is yours ✨</p>
+    </div>
+</div>
+
+<!-- END -->
+<div id="endScreen">
+    <h2>💝 You collected my love 💝</h2>
+    <p>
+        Happy 20th Birthday Madamji 🎂<br>
+        Aaj rona mana hai ❌😊<br>
+        Bas smile 🤍
+    </p>
+    <button onclick="location.reload()">Play Again 💕</button>
+</div>
+
+<script>
+/* ---------------- VARIABLES ---------------- */
+let score = 0;
+let timeLeft = 60;
+let gameInterval;
+let timerInterval;
+let pauseUsed = false;
+let firstMessageShown = false;
+
+/* 🎂 RANDOM MESSAGES (birthday shown once separately) */
+let randomMessages = [
+"Your smile feels like home 🤍",
+"Tum bohot special ho 🌸",
+"Aaj sirf khush rehna hai 😊",
+"Distance sirf numbers hai ❤️",
+"You matter more than you know ✨",
+"Tum strong ho 🌷",
+"You are doing better than you think 🤍",
+"Tumhari hasi priceless hai 💖",
+"Today is YOUR day 🌼",
+"Bas tum ho, wahi kaafi hai",
+"You deserve gentle love 🤍",
+"Stay kind to yourself",
+"Being you is enough",
+"Aaj ka din soft hona chahiye 🌷",
+"You are deeply valued 🤍",
+"This moment is just for you 🌸",
+"Smile… someone cares 💖",
+"Khud pe thoda bharosa rakho",
+"You are safe here 🤍",
+"Life ko thoda slow lene ka haq hai",
+"Tumhari presence comforting hai 🌼",
+"No pressure, no rush",
+"You are not alone 🤍",
+"You don’t need to prove anything",
+"Soft hearts are strong hearts",
+"You are appreciated 🌷",
+"Bas aise hi muskurate rehna 😊",
+"You deserve peace 🤍",
+"Your existence matters"
+];
+
+/* ---------------- START GAME ---------------- */
+document.getElementById("startBtn").onclick = function () {
+
+    document.getElementById("startScreen").style.display = "none";
+
+    const music = document.getElementById("bgMusic");
+    music.volume = 0.6;
+    music.play().catch(() => {});
+
+    gameInterval = setInterval(createHeart, 900);
+    timerInterval = setInterval(updateTimer, 1000);
+};
+
+/* ---------------- HEARTS ---------------- */
+function createHeart() {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "💖";
+    heart.style.left = Math.random() * 90 + "vw";
+
+    heart.onclick = () => {
+        score++;
+        document.getElementById("score").innerText = "Love Collected: " + score;
+        showMessage();
+        heart.remove();
+
+        if (score === 8) triggerPauseMoment();
+    };
+
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 4000);
+}
+
+/* ---------------- MESSAGES ---------------- */
+function showMessage() {
+    let text;
+
+    if (!firstMessageShown) {
+        text = "Happy 20th Birthday Madamji 🎂";
+        firstMessageShown = true;
+    } else {
+        text = randomMessages[Math.floor(Math.random() * randomMessages.length)];
+    }
+
+    const msg = document.createElement("div");
+    msg.className = "message";
+    msg.innerText = text;
+    document.body.appendChild(msg);
+
+    setTimeout(() => msg.remove(), 2200);
+}
+
+/* ---------------- TIMER ---------------- */
+function updateTimer() {
+    timeLeft--;
+    document.getElementById("timer").innerText = "Time Left: " + timeLeft + "s";
+
+    if (timeLeft <= 0) {
+        endGame();
+    }
+}
+
+/* ---------------- PAUSE MOMENT ---------------- */
+function triggerPauseMoment() {
+    if (pauseUsed) return;
+    pauseUsed = true;
+
+    clearInterval(gameInterval);
+    document.getElementById("bgMusic").volume = 0.2;
+    document.getElementById("pauseMoment").style.display = "flex";
+
+    setTimeout(() => {
+        document.getElementById("pauseMoment").style.display = "none";
+        document.getElementById("bgMusic").volume = 0.6;
+        gameInterval = setInterval(createHeart, 900);
+    }, 10000);
+}
+
+/* ---------------- END ---------------- */
+function endGame() {
+    clearInterval(gameInterval);
+    clearInterval(timerInterval);
+    document.getElementById("endScreen").style.display = "flex";
+}
+</script>
+
+</body>
+</html>
